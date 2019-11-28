@@ -9,7 +9,7 @@ class Store(models.Model):
 
     def __str__(self):
         return self.store_name
-
+# The distributor model
 class Distributor(models.Model):
     distributor_name = models.CharField(max_length=100)
     distributor_email = models.EmailField(null=True, blank=True)
