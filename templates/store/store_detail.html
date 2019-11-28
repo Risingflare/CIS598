@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p>{{ object.id }} - {{object.store_name}}</p>
+    
+    {% if count == 0 %}
+        <p>There are no Items available</p>
+    {% else %}
+        <table id="item_list" class="table">
+            <thead class="thead-light">
+                <tr>
+                <th scope="col">Item Name</th>
+                <th scope="col">Size</th>
+                <th scope="col">SKU</th>
+                <th scope="col">Distributor</th>
+                <th scope="col">UPC</th>
+                <th scope="col">Category</th>
+                <th scope="col">MPQ</th>
+                <th scope="col">Case Cost</th>
+                <th scope="col">Split Bottle Cost</th>
+                <th scope="col">Retail Price</th>
+                <th scope="col">On Hand Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for instance in object_list %}
+                <tr>
+                <th scope="row"><a href="{{ instance.get_absolute_url }}">{{instance.item_name}}</a></th>
+                <td>{{instance.item_size}}</td>
+                <td>{{instance.item_sku}}</td>
+                <td>{{instance.item_distributor}}</td>
+                <td>{{instance.item_upc}}</td>
+                <td>{{instance.item_category}}</td>
+                <td>{{instance.item_MPQ}}</td>
+                <td>{{instance.item_case_cost}}</td>
+                <td>{{instance.item_split_bottle_cost}}</td>
+                <td>{{instance.item_retail_price}}</td>
+                <td>{{instance.item_on_hand_count}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <script>
+        $(document).ready( function () {
+            $('#item_list').DataTable();
+        });
+    </script>
+{% endblock %}

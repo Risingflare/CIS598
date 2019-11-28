@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p>{{ object.id }} - {{object.store}} - {{object.item_sku}} - {{object.item_upc}} - {{object.item_distributor}} - {{object.item_size}} - {{object.item_category}} <br> 
+    {{object.item_name}} - {{object.item_case_cost}} - {{object.item_split_bottle_cost}} - {{object.item_retail_price}} - {{object.item_MPQ}} - {{object.item_on_hand_count}}<br>    
+    </p>
+{% endblock %}

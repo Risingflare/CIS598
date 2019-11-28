@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if count == 0 %}
+        <p>There are no Distributors available</p>
+    {% else %}
+        {% for instance in object_list %}
+            <p>{{ instance.id }} - <a href="{{ instance.get_absolute_url }}">{{instance.distributor_name}}</a> - {{instance.distributor_email}}</p>
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}

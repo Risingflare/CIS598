@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if count == 0 %}
+        <p>There are no Items available</p>
+    {% else %}
+        {% for instance in object_list %}
+            <p>{{ instance.id }} - <a href="{{ instance.get_absolute_url }}">{{instance.inventory_item_name}}</a> - {{instance.inventory_item_sku}}</p>
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}
