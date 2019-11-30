@@ -36,3 +36,8 @@ class InventoryItemUPCForm(forms.ModelForm):
     class Meta:
         model = InventoryItemUPC
         fields = '__all__'
+
+class StoreTransferForm(forms.Form):
+    choices = [('EzSpirits','EzSpirits'),('EzForYou','EzForYou'),('CSV','CSV')]
+    store_name = forms.CharField(max_length=50)
+    Options = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)

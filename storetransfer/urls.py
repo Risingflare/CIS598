@@ -8,6 +8,7 @@ from .views import (
     inventory_item_create_view, inventory_item_delete_view, inventory_item_detail_view, inventory_item_list_view, inventory_item_update_view,
     item_create_view, item_detail_view, item_delete_view, item_update_view,
     inventory_item_upc_create_view, inventory_item_upc_delete_view, inventory_item_upc_detail_view, inventory_item_upc_update_view,
+    store_transfer_view,
 )
 
 app_name = 'storetransfer'
@@ -46,4 +47,5 @@ urlpatterns = [
     path('inventory_item/<int:inventory_item_id>/<int:id>/', inventory_item_upc_detail_view, name='inventory-item-upc-detail'),
     path('inventory_item/<int:inventory_item_id>/<int:id>/update/', inventory_item_upc_update_view, name='inventory-item-upc-update'),
     path('inventory_item/<int:inventory_item_id>/<int:id>/delete/', inventory_item_upc_delete_view, name='inventory-item-upc-delete'),
+    path('store_transfer/', store_transfer_view, name='store-transfer'),
 ]

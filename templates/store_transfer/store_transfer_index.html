@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>Instructions:</h4><br>
+<ol>
+    <li>Enter the store name</li>
+    <li>Choose POS system or CSV</li>
+    <li>Select Submit</li>
+    <li>An open file system will open, select the store folder or csv file</li>
+    <li>If you reach the stores item list the transfer was successful</li>
+</ol>
+<form method="POST"> {% csrf_token %}
+    {{ form.as_p }}
+<input type='submit' value='Submit' />
+</form>
+{% endblock %}
