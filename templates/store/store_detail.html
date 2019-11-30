@@ -1,8 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <p>{{ object.id }} - {{object.store_name}}</p>
-    
+    <div class="container" style="margin: 10px 0px">
+        <div class="row">
+            <div class="col-9">
+            <h2>{{object.store_name}}</h2>
+            </div>
+            <div class="col">
+                <a class="btn btn-primary" href="/storetransfer/store/{{object.id}}/create/">Add Item</a>
+            </div>
+        </div>
+    </div>
     {% if count == 0 %}
         <p>There are no Items available</p>
     {% else %}
@@ -17,9 +25,10 @@
                 <th scope="col">Category</th>
                 <th scope="col">MPQ</th>
                 <th scope="col">Case Cost</th>
-                <th scope="col">Split Bottle Cost</th>
+                <th scope="col">Split Btl Cost</th>
                 <th scope="col">Retail Price</th>
-                <th scope="col">On Hand Count</th>
+                <th scope="col">On Hand</th>
+                <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,6 +45,10 @@
                 <td>{{instance.item_split_bottle_cost}}</td>
                 <td>{{instance.item_retail_price}}</td>
                 <td>{{instance.item_on_hand_count}}</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/update/">Update</a>
+                    <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/delete/">Delete</a>
+                </td>
                 </tr>
                 {% endfor %}
             </tbody>

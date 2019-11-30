@@ -2,12 +2,44 @@
 
 {% block content %}
 
+<div class="container" style="margin: 10px 0px">
+    <div class="row">
+        <div class="col-9">
+        <h2>Distributors</h2>
+        </div>
+        <div class="col">
+            <a class="btn btn-primary" href="/storetransfer/distributor/create/">Create Distributor</a>
+        </div>
+    </div>
+</div>
     {% if count == 0 %}
         <p>There are no Distributors available</p>
     {% else %}
-        {% for instance in object_list %}
-            <p>{{ instance.id }} - <a href="{{ instance.get_absolute_url }}">{{instance.distributor_name}}</a> - {{instance.distributor_email}}</p>
-        {% endfor %}
+        <table id="item_list" class="table">
+            <thead class="thead-light">
+                <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for instance in object_list %}
+                <tr>
+                <th scope="row"><a href="{{ instance.get_absolute_url }}">{{instance.distributor_name}}</a></th>
+                <td>{{instance.distributor_email}}</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/storetransfer/distributor/{{instance.id}}/update/">Update</a>
+                    <a class="btn btn-primary btn-sm" href="/storetransfer/distributor/{{instance.id}}/delete/">Delete</a>
+                </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endif %}
-
+    <script>
+        $(document).ready( function () {
+            $('#item_list').DataTable();
+        });
+    </script>
 {% endblock %}

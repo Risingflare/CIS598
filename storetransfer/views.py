@@ -11,7 +11,7 @@ def store_create_view(request):
     form = StoreForm(request.POST or None)
     if form.is_valid():
         form.save()
-        form = StoreForm()
+        return redirect('../')
     context = {
         'form': form
     }
@@ -62,7 +62,7 @@ def distributor_create_view(request):
     form = DistributorForm(request.POST or None)
     if form.is_valid():
         form.save()
-        form = DistributorForm()
+        return redirect('../')
     context = {
         'form': form
     }
@@ -108,7 +108,7 @@ def category_create_view(request):
     form = CategoryForm(request.POST or None)
     if form.is_valid():
         form.save()
-        form = CategoryForm()
+        return redirect('../')
     context = {
         'form': form
     }
@@ -154,7 +154,7 @@ def size_create_view(request):
     form = SizeForm(request.POST or None)
     if form.is_valid():
         form.save()
-        form = SizeForm()
+        return redirect('../')
     context = {
         'form': form
     }
