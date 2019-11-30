@@ -41,3 +41,9 @@ class StoreTransferForm(forms.Form):
     choices = [('EzSpirits','EzSpirits'),('EzForYou','EzForYou'),('CSV','CSV')]
     store_name = forms.CharField(max_length=50)
     Options = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
+
+    def clean_store_name(self):
+        store_name = self.cleaned_data['store_name']
+        if Store.objects.filter(store_name=store_name).exists():
+            raise forms.ValidationError("Store Name already exists.")
+        return store_name

@@ -320,10 +320,11 @@ def inventory_item_upc_delete_view(request, inventory_item_id, id):
     }
     return render(request, "inventory_item_upc/inventory_item_upc_delete.html", context)
 
+#I need to fix the validation of the store name
 def store_transfer_view(request):
     form = StoreTransferForm(request.POST or None)
     if form.is_valid():
-        form.save()
+        print("Hello there")
     context = {
         'form': form
     }
