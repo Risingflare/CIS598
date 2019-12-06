@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import *
 from .models import *
+from .store_transfer_controler import StoreTransfer_start
 
 # Create your views here.
 def home_view(request, *args, **kwargs):
@@ -324,7 +325,11 @@ def inventory_item_upc_delete_view(request, inventory_item_id, id):
 def store_transfer_view(request):
     form = StoreTransferForm(request.POST or None)
     if form.is_valid():
-        print("Hello there")
+        # I need to make a csv file upload then process it, folders won't work I need to create an app
+        store_name = form.cleaned_data['store_name']
+        radio_option_selection = form.cleaned_data['options']
+        file_path = form.cleaned_data['file_path']
+        StoreTransfer_start(store_name, radio_option_selection, file_path)
     context = {
         'form': form
     }

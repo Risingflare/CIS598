@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 # Create your models here.
 class Store(models.Model):
-    store_name = models.CharField(max_length=100)
+    store_name = models.CharField(max_length=100, unique=True)
 
     def get_absolute_url(self):
         return reverse("storetransfer:store-detail", kwargs={"id": self.id})
@@ -11,7 +11,7 @@ class Store(models.Model):
         return self.store_name
 # The distributor model
 class Distributor(models.Model):
-    distributor_name = models.CharField(max_length=100)
+    distributor_name = models.CharField(max_length=100, unique=True)
     distributor_email = models.EmailField(null=True, blank=True)
 
     def get_absolute_url(self):
@@ -21,7 +21,7 @@ class Distributor(models.Model):
         return self.distributor_name
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=100)
+    category_name = models.CharField(max_length=100, unique=True)
 
     def get_absolute_url(self):
         return reverse("storetransfer:category-detail", kwargs={"id": self.id})
@@ -30,7 +30,7 @@ class Category(models.Model):
         return self.category_name
 
 class Size(models.Model):
-    size_name = models.CharField(max_length=50)
+    size_name = models.CharField(max_length=50, unique=True)
 
     def get_absolute_url(self):
         return reverse("storetransfer:size-detail", kwargs={"id": self.id})
