@@ -41,6 +41,3 @@ class StoreTransferForm(forms.ModelForm):
     class Meta:
         model = Store
         fields = ['store_name']
-    choices = [('EzSpirits','EzSpirits'),('EzForYou','EzForYou'),('CSV','CSV')]
-    options = forms.ChoiceField(choices=choices, widget=forms.RadioSelect)
-    file_path = forms.CharField(max_length=200)

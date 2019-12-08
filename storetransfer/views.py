@@ -327,9 +327,8 @@ def store_transfer_view(request):
     if form.is_valid():
         # I need to make a csv file upload then process it, folders won't work I need to create an app
         store_name = form.cleaned_data['store_name']
-        radio_option_selection = form.cleaned_data['options']
-        file_path = form.cleaned_data['file_path']
-        StoreTransfer_start(store_name, radio_option_selection, file_path)
+        csv_file = request.FILES.get('csvfile')
+        StoreTransfer_start(store_name, csv_file)
     context = {
         'form': form
     }

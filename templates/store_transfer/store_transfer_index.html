@@ -11,6 +11,8 @@
 </ol>
 <form method="POST"> {% csrf_token %}
     {{ form.as_p }}
+    <input type="file" name="csvfile" accept=".csv" style="margin: 10px 0px;" required>
+    <br>
 <input type='submit' value='Submit' />
 </form>
 {% endblock %}
