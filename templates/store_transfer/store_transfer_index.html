@@ -9,7 +9,7 @@
     <li>An open file system will open, select the store folder or csv file</li>
     <li>If you reach the stores item list the transfer was successful</li>
 </ol>
-<form method="POST"> {% csrf_token %}
+<form enctype="multipart/form-data" method="POST"> {% csrf_token %}
     {{ form.as_p }}
     <input type="file" name="csvfile" accept=".csv" style="margin: 10px 0px;" required>
     <br>
