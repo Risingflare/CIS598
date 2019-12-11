@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
+from django.contrib import messages
 from .forms import *
 from .models import *
 from .store_transfer_controler import StoreTransfer_start
@@ -328,7 +329,10 @@ def store_transfer_view(request):
         # I need to make a csv file upload then process it, folders won't work I need to create an app
         store_name = form.cleaned_data['store_name']
         csv_file = request.FILES['csvfile']
-        StoreTransfer_start(store_name, csv_file)
+        try:
+            StoreTransfer_start(store_name, csv_file)
+        except Exception as e:
+            messages.info(request, e.args)
     context = {
         'form': form
     }
