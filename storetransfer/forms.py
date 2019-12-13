@@ -32,11 +32,6 @@ class InventoryItemForm(forms.ModelForm):
         model = InventoryItem
         fields = '__all__'
     
-class InventoryItemUPCForm(forms.ModelForm):
-    class Meta:
-        model = InventoryItemUPC
-        fields = '__all__'
-
 class StoreTransferForm(forms.ModelForm):
     class Meta:
         model = Store

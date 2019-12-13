@@ -40,8 +40,8 @@ class Size(models.Model):
 
 class Item(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    item_sku = models.CharField(max_length=20)
-    item_upc = models.CharField(max_length=20)
+    item_sku = models.IntegerField()
+    item_upc = models.IntegerField()
     item_distributor = models.ForeignKey(Distributor, on_delete=models.PROTECT)
     item_size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True)
     item_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
@@ -57,10 +57,11 @@ class Item(models.Model):
         return reverse("storetransfer:item-detail", kwargs={"store_id": self.store.id, "id": self.id})
 
 class InventoryItem(models.Model):
-    inventory_item_sku = models.CharField(max_length=20)
+    inventory_item_sku = models.IntegerField()
     inventory_item_distributor = models.ForeignKey(Distributor, on_delete=models.PROTECT)
     inventory_item_size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True)
     inventory_item_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    inventory_item_upc = models.IntegerField()
     inventory_item_name = models.CharField(max_length=100)
     inventory_item_case_cost = models.DecimalField(max_digits=13,decimal_places=2)
     inventory_item_split_bottle_cost = models.DecimalField(max_digits=13,decimal_places=2)
@@ -71,11 +72,3 @@ class InventoryItem(models.Model):
 
     def __str__(self):
         return self.inventory_item_name
-
-class InventoryItemUPC(models.Model):
-    inventory_item = models.ForeignKey(InventoryItem, on_delete=models.CASCADE)
-    inventory_item_upc = models.CharField(max_length=20)
-    inventory_item_upc_type_name = models.CharField(max_length=100)
-
-    def get_absolute_url(self):
-        return reverse("storetransfer:inventory-item-upc-detail", kwargs={"inventory_item_id": self.inventory_item.id, "id": self.id})

@@ -8,9 +8,8 @@ def similar(string_a, string_b):
 
 # Start the file transfer process
 def StoreTransfer_start(store_name, csv_file):
-    print(store_name) # create store
-    #store_id = Store_create(store_name)
-    ReadFile(csv_file, 1)
+    store_id = Store_create(store_name)
+    ReadFile(csv_file, store_id)
 
 # Create the new store in the database and return the PK
 def Store_create(store_name):
@@ -23,43 +22,111 @@ def ReadFile(csv_file, store_id):
     inventory_df = pd.read_csv(csv_file)
     inventory_df = inventory_df.fillna('') # Change all NaN values to an empty string
     distributor_dictionary = {} # This dictionary will be used to keep track of the foreign keys for distributors in the csv file, to save time.
+    category_dictionary = {}
+    size_dictionary = {}
     count = 0
     for index, item in inventory_df.iterrows():
         try:
-            if count < 10:
-                item_name = item["Item Name"]
-                sku = item["Product SKU"]
-                distributor = item["Distributor"]
-                if not item_name == '' and not sku == '' and not distributor == '':
-                    distributor_id = GetDistributorPK(distributor, distributor_dictionary)
-                    #Finish_item(item_name, sku, distributor, item, store_id)
-                elif not distributor == '' and not item_name == '':
-                    pass
-                elif not distributor == '' and not sku == '':
-                    pass
-                elif not item_name == '' and not sku == '':
-                    pass
-                else:
-                    continue
-                count+=1
+            item_name = item["Item Name"]
+            sku = item["Product SKU"]
+            if sku.isnumeric():
+                sku = int(sku)
             else:
-                break
+                sku = ''
+            distributor = item["Distributor"]
+            if not item_name == '' and not sku == '' and not distributor == '':
+                distributor_id = GetDistributorPK(distributor, distributor_dictionary)
+                inventory_item_db = GetInventoryItem_D_S(distributor_id, sku)
+                Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
+            elif not distributor == '' and not item_name == '':
+                distributor_id = GetDistributorPK(distributor, distributor_dictionary)
+                inventory_item_db = GetInventoryItem_D_N(distributor_id, item_name)
+                if inventory_item_db:
+                    sku = inventory_item_db.inventory_item_sku
+                    Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
+            elif not distributor == '' and not sku == '':
+                distributor_id = GetDistributorPK(distributor, distributor_dictionary)
+                inventory_item_db = GetInventoryItem_D_S(distributor_id, sku)
+                if inventory_item_db:
+                    item_name = inventory_item_db.inventory_item_name
+                    Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
+            elif not item_name == '' and not sku == '':
+                inventory_item_db = GetInventoryItem_S_N(sku, item_name)
+                if inventory_item_db:
+                    distributor_id = inventory_item_db.inventory_item_distributor
+                    Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
+            else:
+                continue
         except KeyError as exception:
-           column_error = exception.args
-           # Delete store
-           raise KeyError("%s column is incorrect in the CSV file" % column_error)
+            column_error = exception.args
+            # Delete store
+            store = Store.objects.get(id=store_id)
+            store.delete()
+            raise KeyError("%s column is incorrect in the CSV file" % column_error)
 
-def Finish_item(item_name, sku, distributor, item, store_id):
-    upc = item["Item Number"]
-    size = item["Size"]
+def Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db):
+    item_error_value = False
+    if inventory_item_db:
+        create_inventory_item_boolean = False
+    else:
+        create_inventory_item_boolean = True
     category = item["Category"]
+    if not category == '':
+        category_id = GetCategoryPK(category, category_dictionary)
+    elif inventory_item_db:
+        category_id = inventory_item_db.inventory_item_category
+    else:
+        category_id = None
+        create_inventory_item_boolean = False
+    size = item["Size"]
+    if not size == '':
+        size_id = GetSizePK(size, size_dictionary)
+    elif inventory_item_db:
+        size_id = inventory_item_db.inventory_item_size
+    else:
+        size_id = None
+        create_inventory_item_boolean = False
+    upc = item["Item Number"]
+    if upc == '' or upc.isnumeric() == False:
+        if inventory_item_db:
+            upc = inventory_item_db.inventory_item_upc
+        else:
+            item_error_value = True
+            create_inventory_item_boolean = False
+            upc = -1
     case_cost = item["Case Cost"]
+    if case_cost == '':
+        item_error_value = True
+        create_inventory_item_boolean = False
+        case_cost = -1
     split_bottle_cost = item["Single Bottle Cost"]
+    if split_bottle_cost == '':
+        item_error_value = True
+        create_inventory_item_boolean = False
+        split_bottle_cost = -1
     retail_price = item["Retail Price"]
+    if retail_price == '':
+        item_error_value = True
+        retail_price = -1
     mpq = item["Quantity Case"]
+    if mpq == '':
+        item_error_value = True
+        create_inventory_item_boolean = False
+        mpq = -1
     on_hand_count = item["Quantity on Hand"]
-    print('{} {} {} {} {} {} {} {} {} {} {}'.format(item_name, sku, upc, distributor, size, category, case_cost, split_bottle_cost, retail_price, mpq, on_hand_count))
+    if on_hand_count == '':
+        item_error_value = True
+        on_hand_count = -1
+    # Create item
+    CreateStoreItem(store_id, sku, int(upc), distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, retail_price, mpq, on_hand_count, item_error_value)
+    if create_inventory_item_boolean == True:
+        # Create Inventory Item
+        CreateInventoryItemDB(sku, int(upc), distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, mpq)
 
+# Get the ditributor primary key.
+# First check dictionary, 
+# if not there check database, 
+# if not there create new distributor in DB and store key in dictionary
 def GetDistributorPK(distributor, distributor_dictionary):
     if distributor in distributor_dictionary:
         return distributor_dictionary[distributor]
@@ -68,7 +135,6 @@ def GetDistributorPK(distributor, distributor_dictionary):
         for distributor_item in distributor_list:
             ratio = similar(distributor.lower(), distributor_item.distributor_name.lower())
             if ratio >= 0.65:
-                print(distributor_item.id)
                 distributor_dictionary[distributor] = distributor_item.id
                 return distributor_item.id
         # Create new distributor
@@ -77,6 +143,78 @@ def GetDistributorPK(distributor, distributor_dictionary):
         distributor_dictionary[distributor] = database_distributor.id
         return database_distributor.id
 
+# Get the Category primary key.
+# First check dictionary, 
+# if not there check database, 
+# if not there create new category in DB and store key in dictionary
+def GetCategoryPK(category, category_dictionary):
+    if category in category_dictionary:
+        return category_dictionary[category]
+    else:
+        category_list = Category.objects.filter(category_name__startswith=category[0])
+        for category_item in category_list:
+            ratio = similar(category.lower(), category_item.category_name.lower())
+            if ratio >= 0.65:
+                category_dictionary[category] = category_item.id
+                return category_item.id
+        database_category = Category(category_name=category)
+        database_category.save()
+        category_dictionary[category] = database_category.id
+        return database_category.id
 
-def Get_SKU(distributor, item_name):
-    pass
+# Get the Size primary key.
+# First check dictionary, 
+# if not there check database, 
+# if not there create new Size in DB and store key in dictionary
+def GetSizePK(size, size_dictionary):
+    if size in size_dictionary:
+        return size_dictionary[size]
+    else:
+        size_list = Size.objects.filter(size_name__startswith=size[0])
+        for size_item in size_list:
+            ratio = similar(size.lower(), size_item.size_name.lower())
+            if ratio >= 0.65:
+                size_dictionary[size] = size_item.id
+                return size_item.id
+        database_size = Size(size_name=size)
+        database_size.save()
+        size_dictionary[size] = database_size.id
+        return database_size.id
+
+# Use DistributorId and SKU# to get the invetory item
+def GetInventoryItem_D_S(distributor_id, sku):
+    try:
+        inventory_item_db = InventoryItem.objects.get(inventory_item_distributor=distributor_id, inventory_item_sku=sku)
+        return inventory_item_db
+    except InventoryItem.DoesNotExist:
+        return None
+
+# Use DistributorId and ItemName to get the inventory item
+def GetInventoryItem_D_N(distributor_id, item_name):
+    try:
+        inventory_item_db = InventoryItem.objects.get(inventory_item_distributor=distributor_id, inventory_item_name=item_name)
+        return inventory_item_db
+    except InventoryItem.DoesNotExist:
+        return None
+
+#Use SKU and Item Name to get the invetory item
+def GetInventoryItem_S_N(sku, item_name):
+    try:
+        inventory_item_db = InventoryItem.objects.get(inventory_item_sku=sku, inventory_item_name=item_name)
+        return inventory_item_db
+    except InventoryItem.DoesNotExist:
+        return None
+
+def CreateStoreItem(store_id, sku, upc, distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, retail_price, mpq, on_hand_count, item_error_value):
+    #try:  
+    store_item = Item(store_id=store_id, item_sku=sku, item_upc=upc, item_distributor_id=distributor_id, item_size_id=size_id, item_category_id=category_id, item_name=item_name, item_case_cost=case_cost, item_split_bottle_cost=split_bottle_cost, item_retail_price=retail_price, item_MPQ=mpq, item_on_hand_count=on_hand_count, item_error_value=item_error_value)
+    store_item.save()
+    #except:
+        #pass
+
+def CreateInventoryItemDB(sku, upc, distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, mpq):
+    #try:
+    inventory_item_DB = InventoryItem(inventory_item_sku=sku, inventory_item_upc=upc, inventory_item_distributor_id=distributor_id, inventory_item_size_id=size_id, inventory_item_category_id=category_id, inventory_item_name=item_name, inventory_item_case_cost=case_cost, inventory_item_split_bottle_cost=split_bottle_cost, inventory_item_MPQ=mpq)
+    inventory_item_DB.save()
+    #except:
+        #pass

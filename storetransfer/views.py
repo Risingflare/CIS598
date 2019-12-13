@@ -285,43 +285,6 @@ def item_delete_view(request, store_id, id):
     }
     return render(request, "item/item_delete.html", context)
 
-def inventory_item_upc_create_view(request, inventory_item_id):
-    form = InventoryItemUPCForm(request.POST or None, initial={'inventory_item':inventory_item_id})
-    if form.is_valid():
-        form.save()
-        form = InventoryItemUPCForm(initial={'inventory_item':inventory_item_id})
-    context = {
-        'form': form
-    }
-    return render(request, "inventory_item_upc/inventory_item_upc_create.html", context)
-
-def inventory_item_upc_update_view(request, inventory_item_id, id):
-    obj = get_object_or_404(InventoryItemUPC, inventory_item=inventory_item_id, id=id)
-    form = InventoryItemUPCForm(request.POST or None, instance=obj)
-    if form.is_valid():
-        form.save()
-    context = {
-        'form': form
-    }
-    return render(request, "inventory_item_upc/inventory_item_upc_create.html", context)
-
-def inventory_item_upc_detail_view(request, inventory_item_id, id):
-    obj = get_object_or_404(InventoryItemUPC, inventory_item=inventory_item_id, id=id)
-    context = {
-        "object":obj
-    }
-    return render(request, "inventory_item_upc/inventory_item_upc_detail.html", context)
-
-def inventory_item_upc_delete_view(request, inventory_item_id, id):
-    obj = get_object_or_404(InventoryItemUPC, inventory_item=inventory_item_id, id=id)
-    if request.method == "POST":
-        obj.delete()
-        return redirect('../')
-    context = {
-        "object": obj
-    }
-    return render(request, "inventory_item_upc/inventory_item_upc_delete.html", context)
-
 #I need to fix the validation of the store name
 def store_transfer_view(request):
     form = StoreTransferForm(request.POST or None)
@@ -329,10 +292,10 @@ def store_transfer_view(request):
         # I need to make a csv file upload then process it, folders won't work I need to create an app
         store_name = form.cleaned_data['store_name']
         csv_file = request.FILES['csvfile']
-        try:
-            StoreTransfer_start(store_name, csv_file)
-        except Exception as e:
-            messages.info(request, e.args)
+        #try:
+        StoreTransfer_start(store_name, csv_file)
+        #except Exception as e:
+           # messages.info(request, e.args)
     context = {
         'form': form
     }
