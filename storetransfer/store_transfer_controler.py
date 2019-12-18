@@ -10,6 +10,7 @@ def similar(string_a, string_b):
 def StoreTransfer_start(store_name, csv_file):
     store_id = Store_create(store_name)
     ReadFile(csv_file, store_id)
+    return store_id
 
 # Create the new store in the database and return the PK
 def Store_create(store_name):
@@ -33,28 +34,26 @@ def ReadFile(csv_file, store_id):
                 sku = int(sku)
             else:
                 sku = ''
+            upc = item["Item Number"]
+            if upc.isnumeric():
+                upc = int(upc)
+            else:
+                upc = ''
             distributor = item["Distributor"]
+            distributor_id = None
+            if not distributor == '':
+                distributor_id = GetDistributorPK(distributor, distributor_dictionary)
+                inventory_item_db = GetInventoryItem(distributor_id, sku, upc)
             if not item_name == '' and not sku == '' and not distributor == '':
-                distributor_id = GetDistributorPK(distributor, distributor_dictionary)
-                inventory_item_db = GetInventoryItem_D_S(distributor_id, sku)
-                Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
+                Finish_item(item_name, sku, distributor_id, upc, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
             elif not distributor == '' and not item_name == '':
-                distributor_id = GetDistributorPK(distributor, distributor_dictionary)
-                inventory_item_db = GetInventoryItem_D_N(distributor_id, item_name)
                 if inventory_item_db:
                     sku = inventory_item_db.inventory_item_sku
-                    Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
+                    Finish_item(item_name, sku, distributor_id, upc, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
             elif not distributor == '' and not sku == '':
-                distributor_id = GetDistributorPK(distributor, distributor_dictionary)
-                inventory_item_db = GetInventoryItem_D_S(distributor_id, sku)
                 if inventory_item_db:
                     item_name = inventory_item_db.inventory_item_name
-                    Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
-            elif not item_name == '' and not sku == '':
-                inventory_item_db = GetInventoryItem_S_N(sku, item_name)
-                if inventory_item_db:
-                    distributor_id = inventory_item_db.inventory_item_distributor
-                    Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
+                    Finish_item(item_name, sku, distributor_id, upc, category_dictionary, size_dictionary, item, store_id, inventory_item_db)
             else:
                 continue
         except KeyError as exception:
@@ -64,7 +63,7 @@ def ReadFile(csv_file, store_id):
             store.delete()
             raise KeyError("%s column is incorrect in the CSV file" % column_error)
 
-def Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictionary, item, store_id, inventory_item_db):
+def Finish_item(item_name, sku, distributor_id, upc, category_dictionary, size_dictionary, item, store_id, inventory_item_db):
     item_error_value = False
     if inventory_item_db:
         create_inventory_item_boolean = False
@@ -86,8 +85,8 @@ def Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictio
     else:
         size_id = None
         create_inventory_item_boolean = False
-    upc = item["Item Number"]
-    if upc == '' or upc.isnumeric() == False:
+        item_error_value = True
+    if upc == '':
         if inventory_item_db:
             upc = inventory_item_db.inventory_item_upc
         else:
@@ -118,7 +117,7 @@ def Finish_item(item_name, sku, distributor_id, category_dictionary, size_dictio
         item_error_value = True
         on_hand_count = -1
     # Create item
-    CreateStoreItem(store_id, sku, int(upc), distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, retail_price, mpq, on_hand_count, item_error_value)
+    CreateStoreItem(store_id, sku, upc, distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, retail_price, mpq, on_hand_count, item_error_value)
     if create_inventory_item_boolean == True:
         # Create Inventory Item
         CreateInventoryItemDB(sku, int(upc), distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, mpq)
@@ -181,27 +180,17 @@ def GetSizePK(size, size_dictionary):
         size_dictionary[size] = database_size.id
         return database_size.id
 
-# Use DistributorId and SKU# to get the invetory item
-def GetInventoryItem_D_S(distributor_id, sku):
-    try:
-        inventory_item_db = InventoryItem.objects.get(inventory_item_distributor=distributor_id, inventory_item_sku=sku)
-        return inventory_item_db
-    except InventoryItem.DoesNotExist:
-        return None
 
-# Use DistributorId and ItemName to get the inventory item
-def GetInventoryItem_D_N(distributor_id, item_name):
+def GetInventoryItem(distributor_id, sku, upc):
     try:
-        inventory_item_db = InventoryItem.objects.get(inventory_item_distributor=distributor_id, inventory_item_name=item_name)
-        return inventory_item_db
-    except InventoryItem.DoesNotExist:
-        return None
-
-#Use SKU and Item Name to get the invetory item
-def GetInventoryItem_S_N(sku, item_name):
-    try:
-        inventory_item_db = InventoryItem.objects.get(inventory_item_sku=sku, inventory_item_name=item_name)
-        return inventory_item_db
+        if not sku == '' and not upc == '':
+            return InventoryItem.objects.get(inventory_item_distributor=distributor_id, inventory_item_sku=sku, inventory_item_upc=upc)
+        elif not sku == '':
+            return InventoryItem.objects.get(inventory_item_distributor=distributor_id, inventory_item_sku=sku)
+        elif not upc == '':
+            return InventoryItem.objects.get(inventory_item_distributor=distributor_id, inventory_item_upc=upc)
+        else:
+            return None
     except InventoryItem.DoesNotExist:
         return None
 

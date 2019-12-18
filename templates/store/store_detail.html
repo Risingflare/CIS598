@@ -28,35 +28,60 @@
                 <th scope="col">Split Btl Cost</th>
                 <th scope="col">Retail Price</th>
                 <th scope="col">On Hand</th>
+                <th scope="col" style="display: none;">Error Value</th>
                 <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for instance in object_list %}
-                <tr>
-                <th scope="row"><a href="{{ instance.get_absolute_url }}">{{instance.item_name}}</a></th>
-                <td>{{instance.item_size}}</td>
-                <td>{{instance.item_sku}}</td>
-                <td>{{instance.item_distributor}}</td>
-                <td>{{instance.item_upc}}</td>
-                <td>{{instance.item_category}}</td>
-                <td>{{instance.item_MPQ}}</td>
-                <td>{{instance.item_case_cost}}</td>
-                <td>{{instance.item_split_bottle_cost}}</td>
-                <td>{{instance.item_retail_price}}</td>
-                <td>{{instance.item_on_hand_count}}</td>
-                <td>
-                    <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/update/">Update</a>
-                    <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/delete/">Delete</a>
-                </td>
-                </tr>
+                    {% if instance.item_error_value == True %}
+                        <tr class="table-danger">
+                            <th scope="row"><a href="{{ instance.get_absolute_url }}">{{instance.item_name}}</a></th>
+                            <td>{{instance.item_size}}</td>
+                            <td>{{instance.item_sku}}</td>
+                            <td>{{instance.item_distributor}}</td>
+                            <td>{{instance.item_upc}}</td>
+                            <td>{{instance.item_category}}</td>
+                            <td>{{instance.item_MPQ}}</td>
+                            <td>{{instance.item_case_cost}}</td>
+                            <td>{{instance.item_split_bottle_cost}}</td>
+                            <td>{{instance.item_retail_price}}</td>
+                            <td>{{instance.item_on_hand_count}}</td>
+                            <td style="display: none;">{{instance.item_error_value}}</td>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/update/">Update</a>
+                                <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/delete/">Delete</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <th scope="row"><a href="{{ instance.get_absolute_url }}">{{instance.item_name}}</a></th>
+                            <td>{{instance.item_size}}</td>
+                            <td>{{instance.item_sku}}</td>
+                            <td>{{instance.item_distributor}}</td>
+                            <td>{{instance.item_upc}}</td>
+                            <td>{{instance.item_category}}</td>
+                            <td>{{instance.item_MPQ}}</td>
+                            <td>{{instance.item_case_cost}}</td>
+                            <td>{{instance.item_split_bottle_cost}}</td>
+                            <td>{{instance.item_retail_price}}</td>
+                            <td>{{instance.item_on_hand_count}}</td>
+                            <td style="display: none;">{{instance.item_error_value}}</td>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/update/">Update</a>
+                                <a class="btn btn-primary btn-sm" href="/storetransfer/store/{{object.id}}/{{instance.id}}/delete/">Delete</a>
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>
     {% endif %}
     <script>
         $(document).ready( function () {
-            $('#item_list').DataTable();
+            $('#item_list').DataTable({
+                "order": [[ 11, "desc" ]]
+            });
         });
     </script>
 {% endblock %}

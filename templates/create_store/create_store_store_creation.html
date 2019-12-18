@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>Enter the name of the new store</h3><br>
+<form method="POST"> {% csrf_token %}
+    {{ form.as_p }}
+<input type='submit' value='Save' />
+</form>
+{% endblock %}

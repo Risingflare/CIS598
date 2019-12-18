@@ -4,11 +4,9 @@
     <div class="container" style="margin: 10px 0px;">
         <div class="row">
             <div class="col-9">
-            <h2>Item Library</h2>
+            <h2>{{distributor_name}}</h2>
             </div>
-            <div class="col">
-                <a class="btn btn-primary" href="/storetransfer/inventory_item/{{distributor_id}}/create/">Add Item</a>
-            </div>
+            <button id="button">Test</button>
         </div>
     </div>
     {% if count == 0 %}
@@ -26,13 +24,12 @@
                 <th scope="col">MPQ</th>
                 <th scope="col">Case Cost</th>
                 <th scope="col">Split Btl Cost</th>
-                <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for instance in object_list %}
                     <tr>
-                        <th scope="row"><a href="{{ instance.get_absolute_url }}">{{instance.inventory_item_name}}</a></th>
+                        <th scope="row">{{instance.inventory_item_name}}</th>
                         <td>{{instance.inventory_item_size}}</td>
                         <td>{{instance.inventory_item_sku}}</td>
                         <td>{{instance.inventory_item_distributor}}</td>
@@ -41,10 +38,6 @@
                         <td>{{instance.inventory_item_MPQ}}</td>
                         <td>{{instance.inventory_item_case_cost}}</td>
                         <td>{{instance.inventory_item_split_bottle_cost}}</td>
-                        <td>
-                            <a class="btn btn-primary btn-sm" href="/storetransfer/inventory_item/{{instance.id}}/update/">Update</a>
-                            <a class="btn btn-primary btn-sm" href="/storetransfer/inventory_item/{{instance.id}}/delete/">Delete</a>
-                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -52,7 +45,14 @@
     {% endif %}
     <script>
         $(document).ready( function () {
-            $('#item_list').DataTable();
+            var table = $('#item_list').DataTable();
+            $('#item_list tbody').on('click', 'tr', function(){
+                $(this).toggleClass('selected');
+            });
+
+            $('#button').click( function () {
+                alert( table.rows('.selected').data());
+            } );
         });
     </script>
 {% endblock %}

@@ -5,9 +5,10 @@ from .views import (
     distributor_create_view, distributor_delete_view, distributor_update_view, distributor_list_view, distributor_detail_view,
     category_create_view, category_update_view, category_list_view, category_delete_view, category_detail_view,
     size_create_view, size_update_view, size_list_view, size_delete_view, size_detail_view,
-    inventory_item_create_view, inventory_item_delete_view, inventory_item_detail_view, inventory_item_list_view, inventory_item_update_view,
+    inventory_item_create_view, inventory_item_delete_view, inventory_item_detail_view, inventory_item_list_view, inventory_item_update_view, inventory_item_distributor_list_view,
     item_create_view, item_detail_view, item_delete_view, item_update_view,
     store_transfer_view,
+    create_store_store_creation_view, create_store_distributor_selection_view, create_store_add_items_view,
 )
 
 app_name = 'storetransfer'
@@ -37,10 +38,14 @@ urlpatterns = [
     path('size/<int:id>/', size_detail_view, name='size-detail'),
     path('size/<int:id>/update/', size_update_view, name='size-update'),
     path('size/<int:id>/delete/', size_delete_view, name='size-delete'),
-    path('inventory_item/', inventory_item_list_view, name='inventory-item-list'),
-    path('inventory_item/create/', inventory_item_create_view, name='inventory-item-create'),
+    path('inventory_item/', inventory_item_distributor_list_view, name='inventory-item-distributor-list'),
+    path('inventory_item/<int:distributor_id>/', inventory_item_list_view, name='inventory-item-list'),
+    path('inventory_item/<int:distributor_id>/create/', inventory_item_create_view, name='inventory-item-create'),
     path('inventory_item/<int:id>/', inventory_item_detail_view, name='inventory-item-detail'),
     path('inventory_item/<int:id>/update/', inventory_item_update_view, name='inventory-item-update'),
     path('inventory_item/<int:id>/delete/', inventory_item_delete_view, name='inventory-item-delete'),
     path('store_transfer/', store_transfer_view, name='store-transfer'),
+    path('create_store/', create_store_store_creation_view, name='create-store-store-creation'),
+    path('create_store/<int:store_id>/', create_store_distributor_selection_view, name='create-store-distributor-selection'),
+    path('create_store/<int:store_id>/<int:distributor_id>/', create_store_add_items_view, name='create-store-add-items'),
 ]

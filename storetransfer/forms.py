@@ -25,7 +25,10 @@ class SizeForm(forms.ModelForm):
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = '__all__'
+        fields = [
+            'store','item_sku','item_upc','item_distributor','item_size','item_category','item_name','item_case_cost',
+            'item_split_bottle_cost','item_retail_price','item_MPQ','item_on_hand_count'
+        ]
     
 class InventoryItemForm(forms.ModelForm):
     class Meta:

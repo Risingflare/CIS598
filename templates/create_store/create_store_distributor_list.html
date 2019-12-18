@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if count == 0 %}
+<p>There are no distributors</p>
+{% else %}
+<form method="POST">{% csrf_token %}
+    <h2>Please select a Distributor</h2><br>
+    <select class="selectpicker" name="dropdown">
+        <option value="0">All Items</option>
+        {% for instance in object_list %}
+            <option value="{{instance.id}}">{{instance.distributor_name}}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="OK">
+</form>
+{% endif %}
+  
+{% endblock %}

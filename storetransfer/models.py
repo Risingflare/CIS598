@@ -40,8 +40,8 @@ class Size(models.Model):
 
 class Item(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    item_sku = models.IntegerField()
-    item_upc = models.IntegerField()
+    item_sku = models.BigIntegerField()
+    item_upc = models.BigIntegerField()
     item_distributor = models.ForeignKey(Distributor, on_delete=models.PROTECT)
     item_size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True)
     item_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
@@ -56,12 +56,18 @@ class Item(models.Model):
     def get_absolute_url(self):
         return reverse("storetransfer:item-detail", kwargs={"store_id": self.store.id, "id": self.id})
 
+    def clean(self):
+        if self.item_case_cost >= 0 and not self.item_size == None and self.item_sku > 0 and self.item_upc > 0 and self.item_split_bottle_cost >= 0 and self.item_MPQ >= 0 and self.item_retail_price >= 0:
+            self.item_error_value = False
+        else:
+            self.item_error_value = True
+
 class InventoryItem(models.Model):
-    inventory_item_sku = models.IntegerField()
+    inventory_item_sku = models.BigIntegerField()
     inventory_item_distributor = models.ForeignKey(Distributor, on_delete=models.PROTECT)
     inventory_item_size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True)
     inventory_item_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
-    inventory_item_upc = models.IntegerField()
+    inventory_item_upc = models.BigIntegerField()
     inventory_item_name = models.CharField(max_length=100)
     inventory_item_case_cost = models.DecimalField(max_digits=13,decimal_places=2)
     inventory_item_split_bottle_cost = models.DecimalField(max_digits=13,decimal_places=2)
