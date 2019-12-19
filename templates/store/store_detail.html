@@ -3,11 +3,13 @@
 {% block content %}
     <div class="container" style="margin: 10px 0px">
         <div class="row">
-            <div class="col-9">
+            <div class="col-6">
             <h2>{{object.store_name}}</h2>
             </div>
-            <div class="col">
+            <div class="col-6">
                 <a class="btn btn-primary" href="/storetransfer/store/{{object.id}}/create/">Add Item</a>
+                <a class="btn btn-primary" href="/storetransfer/store/{{object.id}}/bulk_add/">Add From Inventory</a>
+                <a class="btn btn-primary" href="/storetransfer/download-csv/{{object.id}}/">Download CSV</a>
             </div>
         </div>
     </div>

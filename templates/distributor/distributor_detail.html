@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <p>{{ object.id }} - {{object.distributor_name}} - {{object.distributor_email}}</p>
+    <a href="/storetransfer/distributor/">Distributors</a>
+    <h4>Distributor Name:</h4><p>{{object.distributor_name}}</p>
+    <h4>Distributor Email:</h4><p>{{object.distributor_email}}</p>
 {% endblock %}

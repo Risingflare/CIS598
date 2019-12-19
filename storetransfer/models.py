@@ -74,7 +74,7 @@ class InventoryItem(models.Model):
     inventory_item_MPQ = models.IntegerField()
 
     def get_absolute_url(self):
-        return reverse("storetransfer:inventory-item-detail", kwargs={"id": self.id})
+        return reverse("storetransfer:inventory-item-detail", kwargs={"distributor_id": self.inventory_item_distributor.id, "id": self.id})
 
     def __str__(self):
         return self.inventory_item_name

@@ -2,6 +2,7 @@
 
 {% block content %}
     <form> {% csrf_token %}
+        <a href="/storetransfer/store/{{store_id}}/bulk_add/">Back to Distributors</a>
         <div class="container" style="margin: 10px 0px;">
             <div class="row">
                 <div class="col-6">
@@ -54,7 +55,8 @@
     {% endif %}
     <script>
         var table;
-        var url = '/storetransfer/create_store/{{store_id}}/ajax_submit_call/'
+        var url = '/storetransfer/store/{{store_id}}/bulk_add/ajax_submit_call/'
+        
         $(document).ready( function () {
             table = $('#item_list').DataTable();
             $('#item_list tbody').on('click', 'tr', function(){
@@ -76,10 +78,11 @@
                 $.post(url, {'item_id_list': item_id_list, 'csrfmiddlewaretoken':'{{ csrf_token }}', 'markup_percent':markup_percent }, 
                 function(data){
                     if(data.status == 1){
-                        window.location.href = data.url;
+                        alert(data.message);
+                        //Have to find a way to remove selected rows
                     }
                     else{
-                        alert(data.message)
+                        alert(data.message);
                     }
                 }
                 );

@@ -1,14 +1,15 @@
 from django.urls import path
 from .views import (
     home_view, 
-    store_create_view, store_list_view, store_update_view, store_detail_view, store_delete_view,
+    store_create_view, store_list_view, store_update_view, store_detail_view, store_delete_view, store_bulk_add_distributor_select_view, store_bulk_add_items_view, store_bulk_add_items_ajax,
     distributor_create_view, distributor_delete_view, distributor_update_view, distributor_list_view, distributor_detail_view,
     category_create_view, category_update_view, category_list_view, category_delete_view, category_detail_view,
     size_create_view, size_update_view, size_list_view, size_delete_view, size_detail_view,
     inventory_item_create_view, inventory_item_delete_view, inventory_item_detail_view, inventory_item_list_view, inventory_item_update_view, inventory_item_distributor_list_view,
     item_create_view, item_detail_view, item_delete_view, item_update_view,
     store_transfer_view,
-    create_store_store_creation_view, create_store_distributor_selection_view, create_store_add_items_view,
+    create_store_store_creation_view, create_store_distributor_selection_view, create_store_add_items_view, create_store_add_items_ajax,
+    store_csv_download,
 )
 
 app_name = 'storetransfer'
@@ -17,6 +18,9 @@ urlpatterns = [
     path('store/', store_list_view, name='store-list'),
     path('store/create/', store_create_view, name='store-create'),
     path('store/<int:id>/', store_detail_view, name='store-detail'),
+    path('store/<int:store_id>/bulk_add/', store_bulk_add_distributor_select_view, name='store-bulk-add-distributor-list'),
+    path('store/<int:store_id>/bulk_add/<int:distributor_id>/', store_bulk_add_items_view, name='store-bulk-add-items'),
+    path('store/<int:store_id>/bulk_add/ajax_submit_call/', store_bulk_add_items_ajax, name='store-bulk-add-items-ajax'),
     path('store/<int:id>/update/', store_update_view, name='store-update'),
     path('store/<int:id>/delete/', store_delete_view, name='store-delete'),
     path('store/<int:store_id>/create/', item_create_view, name='item-create'),
@@ -41,11 +45,13 @@ urlpatterns = [
     path('inventory_item/', inventory_item_distributor_list_view, name='inventory-item-distributor-list'),
     path('inventory_item/<int:distributor_id>/', inventory_item_list_view, name='inventory-item-list'),
     path('inventory_item/<int:distributor_id>/create/', inventory_item_create_view, name='inventory-item-create'),
-    path('inventory_item/<int:id>/', inventory_item_detail_view, name='inventory-item-detail'),
+    path('inventory_item/<int:distributor_id>/<int:id>/', inventory_item_detail_view, name='inventory-item-detail'),
     path('inventory_item/<int:id>/update/', inventory_item_update_view, name='inventory-item-update'),
     path('inventory_item/<int:id>/delete/', inventory_item_delete_view, name='inventory-item-delete'),
     path('store_transfer/', store_transfer_view, name='store-transfer'),
     path('create_store/', create_store_store_creation_view, name='create-store-store-creation'),
     path('create_store/<int:store_id>/', create_store_distributor_selection_view, name='create-store-distributor-selection'),
     path('create_store/<int:store_id>/<int:distributor_id>/', create_store_add_items_view, name='create-store-add-items'),
+    path('create_store/<int:store_id>/ajax_submit_call/', create_store_add_items_ajax, name='create-store-ajax-item-submit'),
+    path('download-csv/<int:store_id>/',store_csv_download, name='store-download-csv'),
 ]

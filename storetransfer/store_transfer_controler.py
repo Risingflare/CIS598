@@ -25,17 +25,16 @@ def ReadFile(csv_file, store_id):
     distributor_dictionary = {} # This dictionary will be used to keep track of the foreign keys for distributors in the csv file, to save time.
     category_dictionary = {}
     size_dictionary = {}
-    count = 0
     for index, item in inventory_df.iterrows():
         try:
             item_name = item["Item Name"]
             sku = item["Product SKU"]
-            if sku.isnumeric():
+            if str(sku).isdigit():
                 sku = int(sku)
             else:
                 sku = ''
             upc = item["Item Number"]
-            if upc.isnumeric():
+            if str(upc).isdigit():
                 upc = int(upc)
             else:
                 upc = ''
@@ -58,9 +57,6 @@ def ReadFile(csv_file, store_id):
                 continue
         except KeyError as exception:
             column_error = exception.args
-            # Delete store
-            store = Store.objects.get(id=store_id)
-            store.delete()
             raise KeyError("%s column is incorrect in the CSV file" % column_error)
 
 def Finish_item(item_name, sku, distributor_id, upc, category_dictionary, size_dictionary, item, store_id, inventory_item_db):
@@ -95,23 +91,32 @@ def Finish_item(item_name, sku, distributor_id, upc, category_dictionary, size_d
             upc = -1
     case_cost = item["Case Cost"]
     if case_cost == '':
-        item_error_value = True
-        create_inventory_item_boolean = False
-        case_cost = -1
+        if inventory_item_db:
+            case_cost = inventory_item_db.inventory_item_case_cost
+        else:
+            item_error_value = True
+            create_inventory_item_boolean = False
+            case_cost = -1
     split_bottle_cost = item["Single Bottle Cost"]
     if split_bottle_cost == '':
-        item_error_value = True
-        create_inventory_item_boolean = False
-        split_bottle_cost = -1
+        if inventory_item_db:
+            split_bottle_cost = inventory_item_db.inventory_item_split_bottle_cost
+        else:
+            item_error_value = True
+            create_inventory_item_boolean = False
+            split_bottle_cost = -1
     retail_price = item["Retail Price"]
     if retail_price == '':
         item_error_value = True
         retail_price = -1
     mpq = item["Quantity Case"]
     if mpq == '':
-        item_error_value = True
-        create_inventory_item_boolean = False
-        mpq = -1
+        if inventory_item_db:
+            mpq = inventory_item_db.inventory_item_MPQ
+        else:
+            item_error_value = True
+            create_inventory_item_boolean = False
+            mpq = -1
     on_hand_count = item["Quantity on Hand"]
     if on_hand_count == '':
         item_error_value = True
@@ -195,15 +200,31 @@ def GetInventoryItem(distributor_id, sku, upc):
         return None
 
 def CreateStoreItem(store_id, sku, upc, distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, retail_price, mpq, on_hand_count, item_error_value):
-    #try:  
-    store_item = Item(store_id=store_id, item_sku=sku, item_upc=upc, item_distributor_id=distributor_id, item_size_id=size_id, item_category_id=category_id, item_name=item_name, item_case_cost=case_cost, item_split_bottle_cost=split_bottle_cost, item_retail_price=retail_price, item_MPQ=mpq, item_on_hand_count=on_hand_count, item_error_value=item_error_value)
-    store_item.save()
-    #except:
-        #pass
+    Item.objects.get_or_create(
+            store_id=store_id,
+            item_sku=sku,
+            item_upc=upc,
+            item_distributor_id=distributor_id,
+            item_size_id=size_id,
+            item_category_id=category_id,
+            item_name=item_name,
+            item_case_cost=case_cost,
+            item_split_bottle_cost=split_bottle_cost,
+            item_retail_price=retail_price,
+            item_MPQ=mpq,
+            item_on_hand_count=on_hand_count,
+            item_error_value=item_error_value
+    )
 
 def CreateInventoryItemDB(sku, upc, distributor_id, size_id, category_id, item_name, case_cost, split_bottle_cost, mpq):
-    #try:
-    inventory_item_DB = InventoryItem(inventory_item_sku=sku, inventory_item_upc=upc, inventory_item_distributor_id=distributor_id, inventory_item_size_id=size_id, inventory_item_category_id=category_id, inventory_item_name=item_name, inventory_item_case_cost=case_cost, inventory_item_split_bottle_cost=split_bottle_cost, inventory_item_MPQ=mpq)
-    inventory_item_DB.save()
-    #except:
-        #pass
+    InventoryItem.objects.get_or_create(
+        inventory_item_sku=sku,
+        inventory_item_upc=upc,
+        inventory_item_distributor_id=distributor_id,
+        inventory_item_size_id=size_id,
+        inventory_item_category_id=category_id,
+        inventory_item_name=item_name,
+        inventory_item_case_cost=case_cost,
+        inventory_item_split_bottle_cost=split_bottle_cost,
+        inventory_item_MPQ=mpq
+    )

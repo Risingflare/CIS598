@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <p>{{ object.id }} - {{object.inventory_item_sku}} - {{object.inventory_item_distributor}} - {{object.inventory_item_size}} - {{object.inventory_item_category}} <br>
-    {{object.inventory_item_name}} - {{object.inventory_item_case_cost}} - {{object.inventory_item_split_bottle_cost}} - {{object.inventory_item_MPQ}}</p>
-
-    {% if count == 0 %}
-        <p>There are no UPCs available</p>
-    {% else %}
-        {% for instance in object_list %}
-            <p>{{ instance.id }} - <a href="{{ instance.get_absolute_url }}">{{instance.inventory_item_upc_type_name}}</a> - {{instance.inventory_item_upc}}</p>
-        {% endfor %}
-    {% endif %}
+    <a href="/storetransfer/inventory_item/{{object.inventory_item_distributor_id}}/">Inventory Items</a>
+    <h4>Item Name:</h4><p>{{object.inventory_item_name}}</p>
+    <h4>Distributor:</h4><p>{{object.inventory_item_distributor}}</p>
+    <h4>Item Category:</h4><p>{{object.inventory_item_category}}</p>
+    <h4>Item Size:</h4><p>{{object.inventory_item_size}}</p>
+    <h4>Item SKU:</h4><p>{{object.inventory_item_sku}}</p>
+    <h4>Item UPC:</h4><p>{{object.distributor_email}}</p>
+    <h4>Item Case Cost:</h4><p>{{object.inventory_item_case_cost}}</p>
+    <h4>Item Split Bottle Cost:</h4><p>{{object.inventory_item_split_bottle_cost}}</p>
+    <h4>Item MPQ:</h4><p>{{object.inventory_item_MPQ}}</p>
 {% endblock %}

@@ -1,8 +1,13 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.contrib import messages
+from django.http import HttpResponse
 from .forms import *
 from .models import *
 from .store_transfer_controler import StoreTransfer_start
+from .store_creation_controller import Store_creation_start
+from django.views.decorators.csrf import csrf_exempt
+import json
+import csv
 
 # Create your views here.
 def home_view(request, *args, **kwargs):
@@ -245,14 +250,10 @@ def inventory_item_distributor_list_view(request):
     }
     return render(request, "inventory_item/inventory_item_distributor_list.html", context)
 
-def inventory_item_detail_view(request, id):
+def inventory_item_detail_view(request, distributor_id, id):
     obj = get_object_or_404(InventoryItem, id=id)
-    object_list = InventoryItemUPC.objects.filter(inventory_item=id)
-    count = len(object_list)
     context = {
-        "object":obj,
-        "object_list":object_list,
-        "count":count
+        "object":obj
     }
     return render(request, "inventory_item/inventory_item_detail.html", context)
 
@@ -316,7 +317,9 @@ def store_transfer_view(request):
             store_id = StoreTransfer_start(store_name, csv_file)
             return redirect('storetransfer:store-detail', store_id)
         except Exception as e:
-           messages.info(request, e.args)
+            store = Store.objects.get(store_name=store_name)
+            store.delete()
+            messages.info(request, e.args)
     context = {
         'form': form
     }
@@ -359,6 +362,78 @@ def create_store_add_items_view(request, store_id, distributor_id):
         "object_list": queryset,
         "count": count,
         "distributor_id": distributor_id,
-        "distributor_name": distributor_name
+        "distributor_name": distributor_name,
+        "store_id": store_id
     }
     return render(request, "create_store/create_store_distributor_inventory_items.html", context)
+
+def create_store_add_items_ajax(request, store_id):
+    item_id_list = request.POST.getlist('item_id_list[]')
+    try:
+        markup_percent = request.POST.get('markup_percent')
+        markup_percent = int(markup_percent)/100
+        Store_creation_start(store_id, item_id_list, markup_percent)
+    except Exception:
+        response = {'status': 0, 'message':"Error in store creation"}
+        return HttpResponse(json.dumps(response), content_type='application/json')
+    url = "/storetransfer/store/"+str(store_id)+"/"
+    response = {'status': 1, 'message':"Success", 'url':url}
+    return HttpResponse(json.dumps(response), content_type='application/json')
+
+def store_bulk_add_distributor_select_view(request, store_id):
+    queryset = Distributor.objects.all()
+    count = len(queryset)
+    if request.method == "POST":
+        distributor_id = request.POST['dropdown']
+        return redirect('storetransfer:store-bulk-add-items', store_id, distributor_id)
+    context = {
+        "object_list": queryset,
+        "count": count
+    }
+    return render(request, "store/store_bulk_add_distributor_list.html", context)
+
+def store_bulk_add_items_view(request, store_id, distributor_id):
+    distributor_name = ''
+    if distributor_id == 0:
+        queryset = InventoryItem.objects.all()
+        distributor_name = 'All Items'
+    else:
+        queryset = InventoryItem.objects.filter(inventory_item_distributor=distributor_id)
+        distributor = get_object_or_404(Distributor, id=distributor_id)
+        distributor_name = distributor.distributor_name
+    count = len(queryset)
+    context = {
+        "object_list": queryset,
+        "count": count,
+        "distributor_id": distributor_id,
+        "distributor_name": distributor_name,
+        "store_id": store_id
+    }
+    return render(request, "store/store_bulk_add_distributor_inventory_items.html", context)
+
+def store_bulk_add_items_ajax(request, store_id):
+    item_id_list = request.POST.getlist('item_id_list[]')
+    try:
+        markup_percent = request.POST.get('markup_percent')
+        markup_percent = int(markup_percent)/100
+        Store_creation_start(store_id, item_id_list, markup_percent)
+    except Exception:
+        response = {'status': 0, 'message':"Error in Item Addition"}
+        return HttpResponse(json.dumps(response), content_type='application/json')
+    response = {'status': 1, 'message':"Items Successfully Added"}
+    return HttpResponse(json.dumps(response), content_type='application/json')
+
+def store_csv_download(request, store_id):
+    store = get_object_or_404(Store, id=store_id)
+    item_list = Item.objects.filter(store=store_id)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="'+str(store.store_name)+'.csv"'
+
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow(['Item Name','Category','Distributor','Item Number','Product SKU','Size','Retail Price','Case Cost','Single Bottle Cost','Quantity Case','Quantity on Hand'])
+
+    for item in item_list:
+        writer.writerow([item.item_name, item.item_category, item.item_distributor, item.item_upc, item.item_sku, item.item_size, item.item_retail_price, item.item_case_cost, item.item_split_bottle_cost, item.item_MPQ, item.item_on_hand_count])
+
+    return response
