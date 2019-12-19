@@ -437,3 +437,10 @@ def store_csv_download(request, store_id):
         writer.writerow([item.item_name, item.item_category, item.item_distributor, item.item_upc, item.item_sku, item.item_size, item.item_retail_price, item.item_case_cost, item.item_split_bottle_cost, item.item_MPQ, item.item_on_hand_count])
 
     return response
+
+def example_csv_download(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="sample.csv"'
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow(['Item Name','Category','Distributor','Item Number','Product SKU','Size','Retail Price','Case Cost','Single Bottle Cost','Quantity Case','Quantity on Hand'])
+    return response

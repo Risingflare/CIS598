@@ -9,7 +9,7 @@ from .views import (
     item_create_view, item_detail_view, item_delete_view, item_update_view,
     store_transfer_view,
     create_store_store_creation_view, create_store_distributor_selection_view, create_store_add_items_view, create_store_add_items_ajax,
-    store_csv_download,
+    store_csv_download, example_csv_download,
 )
 
 app_name = 'storetransfer'
@@ -54,4 +54,5 @@ urlpatterns = [
     path('create_store/<int:store_id>/<int:distributor_id>/', create_store_add_items_view, name='create-store-add-items'),
     path('create_store/<int:store_id>/ajax_submit_call/', create_store_add_items_ajax, name='create-store-ajax-item-submit'),
     path('download-csv/<int:store_id>/',store_csv_download, name='store-download-csv'),
+    path('download_example_csv/',example_csv_download, name='example-csv-download'),
 ]

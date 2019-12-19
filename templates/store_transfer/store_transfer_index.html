@@ -10,15 +10,20 @@
 <h4>Instructions:</h4><br>
 <ol>
     <li>Enter the store name</li>
-    <li>Choose POS system or CSV</li>
-    <li>Select Submit</li>
-    <li>An open file system will open, select the store folder or csv file</li>
-    <li>If you reach the stores item list the transfer was successful</li>
+    <li>Select Choose File</li>
+    <li>An open file system will open, select the csv file</li>
+    <li>If you reach the stores item list the transfer was successful, otherwise an error will appear</li>
 </ol>
-<form enctype="multipart/form-data" method="POST"> {% csrf_token %}
-    {{ form.as_p }}
-    <input type="file" name="csvfile" accept=".csv" style="margin: 10px 0px;" required>
-    <br>
-<input type='submit' value='Submit' />
-</form>
+<div>
+    <form enctype="multipart/form-data" method="POST"> {% csrf_token %}
+        {{ form.as_p }}
+        <input type="file" name="csvfile" accept=".csv" style="margin: 10px 0px;" required>
+        <br>
+    <input type='submit' value='Submit' />
+    </form>
+</div>
+<div style="padding-top: 20px;">
+    <h5>For column name convention please download this sample csv. Change your columns to match sample csv column names</h5>
+    <a class="btn btn-primary" href="/storetransfer/download_example_csv/">Download Sample CSV</a>
+</div>
 {% endblock %}
